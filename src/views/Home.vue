@@ -1,18 +1,147 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="sidenav">
+    <img src="@/assets/logo.png" alt="">
+         <div class="login-main-text">
+            <h2>Application<br> Login Page</h2>
+            <p>Login or register from here to access.</p>
+         </div>
+      </div>
+      <div class="main">
+         <div class="col-md-6 col-sm-12">
+            <div class="login-form">
+                <div v-if="error" class="alert alert-danger" role="alert">
+                  {{ error_msg }}
+                </div>
+               <form @submit.prevent="onSubmit">
+                  <div class="form-group">
+                     <label>User Name</label>
+                     <input type="text" class="form-control" placeholder="Usuario"
+                     v-model="user">
+                  </div>
+                  <div class="form-group">
+                     <label>Password</label>
+                     <input type="password" class="form-control" placeholder="Contraseña"
+                     v-model="password">
+                  </div>
+                  <button type="submit" class="btn btn-black">Login</button>
+                  <button class="btn btn-secondary">Register</button>
+               </form>
+            </div>
+         </div>
+      </div>
+
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import axios from 'axios';
 
 export default {
   name: 'Home',
-  components: {
-    HelloWorld
+  data(){
+    return{
+      user: "",
+      password: "",
+      error: false,
+      error_msg:""
+    }
+  },
+  methods:{
+    onSubmit(){
+      let data = {
+        "usuario": this.user,
+        "password": this.password
+      }
+
+      let url = "https://api.solodata.es/auth"
+
+      axios.post(url, data).then(response => {
+        if(response.data.status == "ok"){
+          localStorage.token = response.data.result.token
+          this.$router.push('dashboard')
+          console.log(response.data.status)
+        } else {
+          this.error = true,
+          this.error_msg = response.data.result.error_msg
+        }
+      })
+
+    }
   }
 }
 </script>
+
+<style scoped>
+  body {
+      font-family: "Lato", sans-serif;
+  }
+
+  .main-head{
+      height: 150px;
+      background: #FFF;
+    
+  }
+
+  .sidenav {
+      height: 100%;
+      background-color: #000;
+      overflow-x: hidden;
+      padding-top: 20px;
+  }
+
+  .main {
+      padding: 0px 10px;
+  }
+
+  @media screen and (max-height: 450px) {
+      .sidenav {padding-top: 15px;}
+  }
+
+  @media screen and (max-width: 450px) {
+      .login-form{
+          margin-top: 10%;
+      }
+
+      .register-form{
+          margin-top: 10%;
+      }
+  }
+
+  @media screen and (min-width: 768px){
+      .main{
+          margin-left: 40%; 
+      }
+
+      .sidenav{
+          width: 40%;
+          position: fixed;
+          z-index: 1;
+          top: 0;
+          left: 0;
+      }
+
+      .login-form{
+          margin-top: 80%;
+      }
+
+      .register-form{
+          margin-top: 20%;
+      }
+  }
+
+  .login-main-text{
+      margin-top: 20%;
+      padding: 60px;
+      color: #fff;
+  }
+
+  .login-main-text h2{
+      font-weight: 300;
+  }
+
+  .btn-black{
+      background-color: #000 !important;
+      color: #fff;
+  }  
+</style>
